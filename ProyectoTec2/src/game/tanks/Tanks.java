@@ -37,6 +37,7 @@ public class Tanks extends JFrame implements Runnable {
 	private Vectores bulletCpy;
 	private Vectores bulletCpy2;
 	private Vectores velocity;
+	private Vectores velocity2;
 
 	public Tanks() {
 		
@@ -81,6 +82,7 @@ public class Tanks extends JFrame implements Runnable {
 		frameRate = new FrameRate();
 		frameRate.initialize();
 		velocity = new Vectores();
+		velocity2 = new Vectores();
 		cannonRot = 0.0f;
 		cannonRot2 = 0.0f;
 		cannonDelta = (float) Math.toRadians(180);
@@ -197,7 +199,7 @@ public class Tanks extends JFrame implements Runnable {
 			// new velocity
 			Matrices mat2 = Matrices.translate(-10.5f, 0.0f);
 			mat2 = mat2.mul(Matrices.rotate(cannonRot2));
-			velocity = mat2.mul(new Vectores());
+			velocity2 = mat2.mul(new Vectores());
 			// place bullet at cannon end
 			mat2 = Matrices.translate(-.50f, 0.20f);
 			mat2 = mat2.mul(Matrices.rotate(cannonRot2));
@@ -244,9 +246,9 @@ public class Tanks extends JFrame implements Runnable {
 			}
 		}
 		if (bullet2 != null) {
-			velocity.y += -9.0f * delta;
-			bullet2.x += velocity.x * delta;
-			bullet2.y += velocity.y * delta;
+			velocity2.y += -9.0f * delta;
+			bullet2.x += velocity2.x * delta;
+			bullet2.y += velocity2.y * delta;
 			bulletCpy2 = new Vectores(bullet2);
 			if (bullet2.y < -2.033f || bullet2.x > 14.2f || bullet2.x < -4.6f) {
 				bullet2 = null;
