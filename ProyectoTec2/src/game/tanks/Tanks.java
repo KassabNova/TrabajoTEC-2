@@ -102,22 +102,22 @@ public class Tanks extends JFrame implements Runnable {
 			mapaPiso[i] = scaleMapa.mul(mapaPiso[i]);
 		}
 		cannonCpy = new Vectores[cannon.length];
-		Matrices scale = Matrices.scale(.75f, .75f);
+		Matrices scale = Matrices.scale(.5f, .5f);
 		for (int i = 0; i < cannon.length; ++i) {
 			cannon[i] = scale.mul(cannon[i]);
 		}
 		cannonCpy2 = new Vectores[cannon2.length];
-		Matrices scale2 = Matrices.scale(.75f, .75f);
+		Matrices scale2 = Matrices.scale(.5f, .5f);
 		for (int i = 0; i < cannon2.length; ++i) {
 			cannon2[i] = scale2.mul(cannon2[i]);
 		}
 		tanqueACpy = new Vectores[tanqueA.length];
-		Matrices scaleA = Matrices.scale(.75f, .75f);
+		Matrices scaleA = Matrices.scale(.5f, .5f);
 		for (int i = 0; i < tanqueA.length; ++i) {
 			tanqueA[i] = scaleA.mul(tanqueA[i]);
 		}
 		tanqueBCpy = new Vectores[tanqueB.length];
-		Matrices scaleB = Matrices.scale(.75f, .75f);
+		Matrices scaleB = Matrices.scale(.5f, .5f);
 		for (int i = 0; i < tanqueB.length; ++i) {
 			tanqueB[i] = scaleB.mul(tanqueB[i]);
 		}
@@ -172,13 +172,13 @@ public class Tanks extends JFrame implements Runnable {
 		}
 		if (keyboard.keyDownOnce(KeyEvent.VK_SPACE)) {
 			// new velocity
-			Matrices mat = Matrices.translate(9.5f, 0.0f);
+			Matrices mat = Matrices.translate(10.5f, 0.0f);
 			mat = mat.mul(Matrices.rotate(cannonRot));
 			velocity = mat.mul(new Vectores());
 			// place bullet at cannon end
-			mat = Matrices.translate(.8f, 0.3f);
+			mat = Matrices.translate(0.45f, 0.20f);
 			mat = mat.mul(Matrices.rotate(cannonRot));
-			mat = mat.mul(Matrices.translate(-1.35f, -1.75f));
+			mat = mat.mul(Matrices.translate(-1.6f, -1.75f));
 			bullet = mat.mul(new Vectores());
 		}
 		if (keyboard.keyDown(KeyEvent.VK_J)) {
@@ -195,13 +195,13 @@ public class Tanks extends JFrame implements Runnable {
 		}
 		if (keyboard.keyDownOnce(KeyEvent.VK_I)) {
 			// new velocity
-			Matrices mat2 = Matrices.translate(-9.5f, 0.0f);
+			Matrices mat2 = Matrices.translate(-10.5f, 0.0f);
 			mat2 = mat2.mul(Matrices.rotate(cannonRot2));
 			velocity = mat2.mul(new Vectores());
 			// place bullet at cannon end
-			mat2 = Matrices.translate(-.8f, 0.3f);
+			mat2 = Matrices.translate(-.50f, 0.20f);
 			mat2 = mat2.mul(Matrices.rotate(cannonRot2));
-			mat2 = mat2.mul(Matrices.translate(8.3f, -1.75f));
+			mat2 = mat2.mul(Matrices.translate(10.5f, -1.75f));
 			bullet2 = mat2.mul(new Vectores());
 		}
 	}
@@ -214,7 +214,7 @@ public class Tanks extends JFrame implements Runnable {
 		Matrices matB = Matrices.identity();
 		matMapa = matMapa.mul(Matrices.translate(-0.385f, -1.718f));
 		mat = mat.mul(Matrices.rotate(cannonRot));
-		mat = mat.mul(Matrices.translate(-1.35f, -1.75f));
+		mat = mat.mul(Matrices.translate(-1.6f, -1.75f));
 		matA = matA.mul(Matrices.translate(-2.0f, -2.0f));
 		mat2 = mat2.mul(Matrices.rotate(cannonRot2));
 		mat2 = mat2.mul(Matrices.translate(2.1f, -1.75f));
@@ -235,20 +235,20 @@ public class Tanks extends JFrame implements Runnable {
 			cannonCpy2[i] = mat2.mul(cannon2[i]);
 		}
 		if (bullet != null) {
-			velocity.y += -9.5f * delta;
+			velocity.y += -9.0f * delta;
 			bullet.x += velocity.x * delta;
 			bullet.y += velocity.y * delta;
 			bulletCpy = new Vectores(bullet);
-			if (bullet.y < -2.033f || bullet.x > 10.f || bullet.x < -3.4f ) {
+			if (bullet.y < -2.033f || bullet.x > 14.2f || bullet.x < -4.5f ) {
 				bullet = null;
 			}
 		}
 		if (bullet2 != null) {
-			velocity.y += -5.8f * delta;
+			velocity.y += -9.0f * delta;
 			bullet2.x += velocity.x * delta;
 			bullet2.y += velocity.y * delta;
 			bulletCpy2 = new Vectores(bullet2);
-			if (bullet2.y < -2.033f || bullet2.x > 10.69f || bullet2.x < -3.4f) {
+			if (bullet2.y < -2.033f || bullet2.x > 14.2f || bullet2.x < -4.6f) {
 				bullet2 = null;
 			}
 		}
@@ -264,13 +264,13 @@ public class Tanks extends JFrame implements Runnable {
 		String vel = String.format("Velocity (%.2f,%.2f)", velocity.x,
 				velocity.y);
 		g.drawString(vel, 20, 100);
-		float worldWidth = 15.0f;
+		float worldWidth = 20.0f;
 		float worldHeight = 5.0f;
 		float screenWidth = canvas.getWidth() - 1;
 		float screenHeight = canvas.getHeight() - 1;
 		float sx = screenWidth / worldWidth;
 		float sy = -screenHeight / worldHeight ;
-		float sxMapa = screenWidth/ worldWidth *18.0f ;
+		float sxMapa = screenWidth/ worldWidth *25.0f ;
 		float syMapa = -screenHeight/ worldHeight + 5;
 		Matrices viewport = Matrices.scale(sx, sy);
 		Matrices viewport2 = Matrices.scale(sx, sy);
