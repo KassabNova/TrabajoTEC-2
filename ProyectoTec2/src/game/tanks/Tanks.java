@@ -1,17 +1,15 @@
 package game.tanks;
-
+//Importando paquetes de Java
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import game.util.*;
 import javax.swing.*;
 
-
+//Clase extendiendo Jframe y Runnable. Método Main hasta abajo
 public class Tanks extends JFrame implements Runnable {
 	
-	/**
-	 * 
-	 */
+	//Declaración de las variables de clase
 	private static final long serialVersionUID = 1L;
 	private FrameRate frameRate;
 	private BufferStrategy bs;
@@ -38,55 +36,70 @@ public class Tanks extends JFrame implements Runnable {
 	private Vectores bulletCpy2;
 	private Vectores velocity;
 	private Vectores velocity2;
+	public float viento;
 
 	public Tanks() {
 		
 	}
-
+	//Aquí se define el tamaño de la ventana y sus parámetros
 	protected void createAndShowGUI() {
-		canvas = new Canvas();
-		canvas.setSize(1240, 480);
-		canvas.setBackground(Color.BLACK);
-		canvas.setIgnoreRepaint(true);
+		canvas = new Canvas(); 
+		canvas.setSize(1240, 480); //Aquí se define el tamaño de la ventana (x, y)
+		canvas.setBackground(Color.BLACK); //El color del fondo
+		//Inicialización de canvas
+		canvas.setIgnoreRepaint(false);
 		getContentPane().add(canvas);
-		setTitle("Pelea de Tanques");
-		setIgnoreRepaint(true);
+		setTitle("Pelea de Tanques"); //Nombre de la ventana
+		setIgnoreRepaint(false);
+		//Pack hace que los valores de arriba se apliquen
 		pack();
-		keyboard = new InputTeclado();
-		canvas.addKeyListener(keyboard);
-		mouse = new InputMouse(canvas);
+		//Valores a las variables declaradas arriba
+		keyboard = new InputTeclado(); //Teclado
+		canvas.addKeyListener(keyboard); //KeyListener
+		mouse = new InputMouse(canvas); //Mouse
 	
-		setVisible(true);
-		canvas.createBufferStrategy(2);
-		bs = canvas.getBufferStrategy();
-		canvas.requestFocus();
-		gameThread = new Thread(this);
-		gameThread.start();
+		setVisible(true); //Hace visible la ventana
+		canvas.createBufferStrategy(2); //Creación de 2 Buffers (Double Buffer)
+		bs = canvas.getBufferStrategy(); //Pasando el valor a variable bs
+		canvas.requestFocus(); //Hace que el buffer 1 tenga prioridad
+		gameThread = new Thread(this); //Thread hace que haya varios 'hilos' 
+		gameThread.start();//Ejecuta el thread
 	}
-
+	//Metodo de ejecución del juego
 	public void run() {
 		running = true;
-		initialize();
-		long curTime = System.nanoTime();
+		initialize(); //Llama al método que inicializa todos los objetos
+		//Estos valores hacen que exista 'tiempo' dentro del juego
+		long curTime = System.nanoTime(); //Tiempo en nanosegundos 
 		long lastTime = curTime;
-		double nsPerFrame;
+		double nsPerFrame; //Nanosegundos por cuadro
+		//Mientras running sea verdadero el juego se ejecuta en su loop
 		while (running) {
 			curTime = System.nanoTime();
 			nsPerFrame = curTime - lastTime;
-			gameLoop(nsPerFrame / 1.0E9);
+			//Se llama al loop con el parametro del tiempo en segundos. 
+			gameLoop(nsPerFrame / 1.0E9); 
 			lastTime = curTime;
 		}
 	}
-
+	//Inicialización de todos los objetos
 	private void initialize() {
-		frameRate = new FrameRate();
-		frameRate.initialize();
-		velocity = new Vectores();
+		//Cuenta el tiempo que tarda en hacer render cada segundo
+		frameRate = new FrameRate(); 
+		frameRate.initialize(); //Inicializa el frameRAte
+		//Crea los objetos de velocidad de los 2 proyectiles
+		velocity = new Vectores(); 
 		velocity2 = new Vectores();
+		viento = 0.0f; //La fuerza inicial del viento inicializa en 0
+		//La rotación de los cañones se inicializa en el 'angulo' 0
 		cannonRot = 0.0f;
 		cannonRot2 = 0.0f;
+		//La velocidad de cambio de la rotación de los cañones se inicializa
 		cannonDelta = (float) Math.toRadians(180);
 		cannonDelta2 = (float) Math.toRadians(180);
+		//Usando la clase Vectores se le está asignando coordenadas a 
+		//diferentes puntos y conectando el punto inicial con el 
+		//último punto dibujado. Así creando un polígono cerrado
 		mapaPiso = new Vectores[] {new Vectores(0f, 0f), new Vectores(0.0f,1.0f),
 				new Vectores(1.0f,1.0f), new Vectores(1.0f, 0.0f)};
 		tanqueA = new Vectores[] {new Vectores(1f, 0f), new Vectores(.8f,.5f),
@@ -98,37 +111,46 @@ public class Tanks extends JFrame implements Runnable {
 		cannon2 = new Vectores[] {new Vectores(-1.2f, .3f), new Vectores(-1.2f,.5f),
 				new Vectores(-1.0f,.4f), new Vectores(.0f, .0f)
 		};
+		/*Para poder tener un buffer doble se necesita que existan
+		 *2 copias del mismo 'dibujo' hecho en las matrices de Vectores
+		 *Así, los objetos se actualizan en el fondo y se imprimen las copias
+		 *Aquí se le asigna el tamaño de la matriz a la copia */
 		mapaPisoCpy = new Vectores[mapaPiso.length];
+		cannonCpy = new Vectores[cannon.length];
+		cannonCpy2 = new Vectores[cannon2.length];
+		tanqueACpy = new Vectores[tanqueA.length];
+		tanqueBCpy = new Vectores[tanqueB.length];
+		/*Se escalan los dibujos usando el método scale en la clase
+		 * Matrices. Esto es para que el mapa y los objectos tengan
+		 * una sensación de mayor distancia */
+		//El mapa escala a 75% 
 		Matrices scaleMapa = Matrices.scale(.75f, .75f);
 		for (int i = 0; i < mapaPiso.length; ++i) {
 			mapaPiso[i] = scaleMapa.mul(mapaPiso[i]);
-		}
-		cannonCpy = new Vectores[cannon.length];
-		Matrices scale = Matrices.scale(.5f, .5f);
+		}		
+		//Todo lo demas se escala a un 50%
+		Matrices scale = Matrices.scale(.5f, .5f); //Estos son los valores de escala
 		for (int i = 0; i < cannon.length; ++i) {
 			cannon[i] = scale.mul(cannon[i]);
-		}
-		cannonCpy2 = new Vectores[cannon2.length];
+		}		
 		Matrices scale2 = Matrices.scale(.5f, .5f);
 		for (int i = 0; i < cannon2.length; ++i) {
 			cannon2[i] = scale2.mul(cannon2[i]);
-		}
-		tanqueACpy = new Vectores[tanqueA.length];
+		}		
 		Matrices scaleA = Matrices.scale(.5f, .5f);
 		for (int i = 0; i < tanqueA.length; ++i) {
 			tanqueA[i] = scaleA.mul(tanqueA[i]);
-		}
-		tanqueBCpy = new Vectores[tanqueB.length];
+		}	
 		Matrices scaleB = Matrices.scale(.5f, .5f);
 		for (int i = 0; i < tanqueB.length; ++i) {
 			tanqueB[i] = scaleB.mul(tanqueB[i]);
 		}
 	}
-
+	//Éste es el loop del juego pasando el parametro de tiempo en nS
 	private void gameLoop(double delta) {
-		processInput(delta);
-		updateObjects(delta);
-		renderFrame();
+		processInput(delta); //Input de mouse y teclado en loop
+		updateObjects(delta); //La actualización de objectos 
+		renderFrame(); 
 		sleep(10L);
 	}
 
@@ -166,15 +188,10 @@ public class Tanks extends JFrame implements Runnable {
 		if (keyboard.keyDown(KeyEvent.VK_S)) {
 			cannonRot -= cannonDelta * delta;
 		}
-		if (keyboard.keyDown(KeyEvent.VK_D)) {
-			
-		}
-		if (keyboard.keyDown(KeyEvent.VK_A)) {
-			
-		}
 		if (keyboard.keyDownOnce(KeyEvent.VK_SPACE)) {
 			// new velocity
-			Matrices mat = Matrices.translate(10.5f, 0.0f);
+			viento = (float)Math.random()* 2;
+			Matrices mat = Matrices.translate(10.5f + viento , 0.0f);
 			mat = mat.mul(Matrices.rotate(cannonRot));
 			velocity = mat.mul(new Vectores());
 			// place bullet at cannon end
@@ -188,12 +205,6 @@ public class Tanks extends JFrame implements Runnable {
 		}
 		if (keyboard.keyDown(KeyEvent.VK_U)) {
 			cannonRot2 -= cannonDelta2 * delta;
-		}
-		if (keyboard.keyDown(KeyEvent.VK_K)) {
-			
-		}
-		if (keyboard.keyDown(KeyEvent.VK_H)) {
-			
 		}
 		if (keyboard.keyDownOnce(KeyEvent.VK_I)) {
 			// new velocity
@@ -266,13 +277,18 @@ public class Tanks extends JFrame implements Runnable {
 		String vel = String.format("Velocity (%.2f,%.2f)", velocity.x,
 				velocity.y);
 		g.drawString(vel, 20, 100);
+		String vel2 = String.format("Velocity2 (%.2f,%.2f)", velocity2.x,
+				velocity2.y);
+		g.drawString(vel2, 20, 130);
+		String vientoString = String.format("Viento (%.2f)", viento);
+		g.drawString(vientoString, 20, 160);
 		float worldWidth = 20.0f;
 		float worldHeight = 5.0f;
 		float screenWidth = canvas.getWidth() - 1;
 		float screenHeight = canvas.getHeight() - 1;
 		float sx = screenWidth / worldWidth;
 		float sy = -screenHeight / worldHeight ;
-		float sxMapa = screenWidth/ worldWidth *25.0f ;
+		float sxMapa = screenWidth/ worldWidth * 25.0f ;
 		float syMapa = -screenHeight/ worldHeight + 5;
 		Matrices viewport = Matrices.scale(sx, sy);
 		Matrices viewport2 = Matrices.scale(sx, sy);
