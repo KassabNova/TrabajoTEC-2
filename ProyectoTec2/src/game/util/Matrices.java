@@ -116,17 +116,6 @@ public class Matrices {
 		});
 	}
 
-	public static Matrices shear(Vectores v) {
-		return shear(v.x, v.y);
-	}
-
-	public static Matrices shear(float x, float y) {
-		return new Matrices(new float[][] { 
-			{ 1.0f, y, 0.0f },
-			{ x, 1.0f, 0.0f }, 
-			{ 0.0f, 0.0f, 1.0f } 
-		});
-	}
 
 	public static Matrices rotate(float rad) {
 		return new Matrices(new float[][] {
@@ -150,18 +139,5 @@ public class Matrices {
 		);
 	}
 
-	@Override
-	public String toString() {
-		StringBuilder buf = new StringBuilder();
-		for (int i = 0; i < 3; ++i) {
-			buf.append("[");
-			buf.append(m[i][0]);
-			buf.append(",\t");
-			buf.append(m[i][1]);
-			buf.append(",\t");
-			buf.append(m[i][2]);
-			buf.append("]\n");
-		}
-		return buf.toString();
-	}
+
 }

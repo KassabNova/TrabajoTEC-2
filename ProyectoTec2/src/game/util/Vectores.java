@@ -35,10 +35,7 @@ public class Vectores {
 		y += ty;
 	}
 
-	public void scale(float sx, float sy) {
-		x *= sx;
-		y *= sy;
-	}
+
 
 	public void rotate(float rad) {
 		float tmp = (float) (x * Math.cos(rad) - y * Math.sin(rad));
@@ -46,55 +43,6 @@ public class Vectores {
 		x = tmp;
 	}
 
-	public void shear(float sx, float sy) {
-		float tmp = x + sx * y;
-		y = y + sy * x;
-		x = tmp;
-	}
-
-	public Vectores add(Vectores v) {
-		return new Vectores(x + v.x, y + v.y);
-	}
-
-	public Vectores sub(Vectores v) {
-		return new Vectores(x - v.x, y - v.y);
-	}
-
-	public Vectores mul(float scalar) {
-		return new Vectores(scalar * x, scalar * y);
-	}
-
-	public Vectores div(float scalar) {
-		return new Vectores(x / scalar, y / scalar);
-	}
-
-	public Vectores inv() {
-		return new Vectores(-x, -y);
-	}
-
-	public Vectores norm() {
-		return div(len());
-	}
-
-	public float dot(Vectores v) {
-		return x * v.x + y * v.y;
-	}
-
-	public float len() {
-		return (float) Math.sqrt(x * x + y * y);
-	}
-
-	public float lenSqr() {
-		return x * x + y * y;
-	}
-
-	public Vectores perp() {
-		return new Vectores(-y, x);
-	}
-
-	public float angle() {
-		return (float) Math.atan2(y, x);
-	}
 
 	public static Vectores polar(float angle, float radius) {
 		return new Vectores(radius * (float) Math.cos(angle), radius

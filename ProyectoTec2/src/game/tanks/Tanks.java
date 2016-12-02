@@ -37,7 +37,7 @@ public class Tanks extends JFrame implements Runnable {
 	private Vectores velocity2;
 	public float viento, sleepViento;
 	public int cannonCol, cannonCol2; 
-	
+	//Objeto tanks llamado en main
 	public Tanks() {
 		
 	}
@@ -275,20 +275,24 @@ public class Tanks extends JFrame implements Runnable {
 		for (int i = 0; i < cannon2.length; ++i) {
 			cannonCpy2[i] = mat2.mul(cannon2[i]);
 		}
+		//Cuando la bala NO es nula le declara valores de 'velocidad' en x,y
 		if (bullet != null) {
 			velocity.y += -9.0f * delta;
 			bullet.x += velocity.x * delta;
 			bullet.y += velocity.y * delta;
 			bulletCpy = new Vectores(bullet);
+			//Detección de colisión 
 			if (bullet.y < -2.033f || bullet.x > 14.2f || bullet.x < -4.5f ) {
 				bullet = null;
 			}
+			//Cuando el valor está entre un intervalo le aumenta un contador de colisión
 			else if(bullet.y < -1.733f && (bullet.x > 10.5f && bullet.x < 11.0f))
 			{
 				cannonCol++;
 				bullet = null;					
 			}
 		}
+		//Igual para el proyectil de la derecha
 		if (bullet2 != null) {
 			velocity2.y += -9.0f * delta;
 			bullet2.x += velocity2.x * delta;
@@ -305,11 +309,15 @@ public class Tanks extends JFrame implements Runnable {
 			}
 		}
 	}
-
+	
+	//Método donde se dibuja en la ventana usando Graphics
 	private void render(Graphics g) {
+		//Color de las lineas y letras. Tamaño y fuente. Etc....
 		g.setColor(Color.GREEN);
 		g.setFont(new Font("TimesRoman", Font.PLAIN, 30)); 
+		//Calcula el framerate 
 		frameRate.calculate();
+		//Imprime texto en la pantalla en coordenadas x,y
 		g.drawString(frameRate.getFrameRate(), 20, 25);
 		g.drawString("Controles: W/S para mover cañon del oeste y U/J para mover cañon del este", 20, 50);
 		g.drawString("Oprime Space para disparar el cañon del oeste y la tecla I para disparar el cañon del este", 20, 75);
@@ -325,6 +333,8 @@ public class Tanks extends JFrame implements Runnable {
 		g.drawString(collisionString, 20, 190);
 		String collisionString2 = String.format("Hits tanque del este " + cannonCol2);
 		g.drawString(collisionString2, 20, 160);
+		//Las 'vidas' del tanque se declaran aquí. Cuando el contador de colision llega
+		//se muestra un mensaje
 		if(cannonCol >= 9)
 		{
 			String gameOver = String.format("GAME OVER: TANQUE DEL OESTE GANA");
@@ -335,6 +345,7 @@ public class Tanks extends JFrame implements Runnable {
 			String gameOver2 = String.format("GAME OVER: TANQUE DEL ESTE GANA");
 			g.drawString(gameOver2, 400, 300);
 		}
+		//El tamaño del 'mundo' dentro de la ventana
 		float worldWidth = 20.0f;
 		float worldHeight = 5.0f;
 		float screenWidth = canvas.getWidth() - 1;
@@ -355,6 +366,8 @@ public class Tanks extends JFrame implements Runnable {
 		viewport = viewport.mul(Matrices.translate(tx, ty));
 		viewport2 = viewport2.mul(Matrices.translate(tx2, ty2));
 		viewportMapa = viewportMapa.mul(Matrices.translate(txMapa, tyMapa));
+		//Utilizando viewport, se le pasan los valores en donde iran en la ventana visible
+		//Le copia sus contenidos a las copias y luego las imprime abajo
 		for (int i = 0; i < cannon.length; ++i) {
 			cannonCpy[i] = viewport.mul(cannonCpy[i]);
 		}
@@ -370,11 +383,13 @@ public class Tanks extends JFrame implements Runnable {
 		for (int i = 0; i < mapaPiso.length; ++i) {
 			mapaPisoCpy[i] = viewportMapa.mul(mapaPisoCpy[i]);
 		}
+		//Llama al metodo dibujaPoligono e imprime las copias en pantalla.
 		dibujaPoligono(g, mapaPisoCpy);
 		dibujaPoligono(g, cannonCpy);
 		dibujaPoligono(g, cannonCpy2);
 		dibujaPoligono(g, tanqueACpy);
 		dibujaPoligono(g, tanqueBCpy);
+		// Si la bala no es nula le pasa el valor 'visible' a la copia y la imprime en pantalla
 		if (bullet != null) {
 			bulletCpy = viewport.mul(bulletCpy);
 			g.drawRect((int) bulletCpy.x - 2, (int) bulletCpy.y - 2, 4, 4);
@@ -384,7 +399,8 @@ public class Tanks extends JFrame implements Runnable {
 			g.drawRect((int) bulletCpy2.x - 2, (int) bulletCpy2.y - 2, 4, 4);
 		}
 	}
-
+	
+	//Método para dibujar los polígonos.
 	private void dibujaPoligono(Graphics g, Vectores[] poligono) {
 		Vectores P;
 		Vectores S = poligono[poligono.length - 1];
@@ -404,7 +420,7 @@ public class Tanks extends JFrame implements Runnable {
 		}
 		System.exit(0);
 	}
-
+	//Método main.
 	public static void main(String[] args) {
 		final Tanks app = new Tanks();
 		app.addWindowListener(new WindowAdapter() {
