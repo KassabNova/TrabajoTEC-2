@@ -15,7 +15,6 @@ public class Tanks extends JFrame implements Runnable {
 	private BufferStrategy bs;
 	private volatile boolean running;
 	private Thread gameThread;
-	private InputMouse mouse;
 	private InputTeclado keyboard;
 	private Canvas canvas;
 	private Vectores[] mapaPiso;
@@ -57,7 +56,6 @@ public class Tanks extends JFrame implements Runnable {
 		//Valores a las variables declaradas arriba
 		keyboard = new InputTeclado(); //Teclado
 		canvas.addKeyListener(keyboard); //KeyListener
-		mouse = new InputMouse(canvas); //Mouse
 	
 		setVisible(true); //Hace visible la ventana
 		canvas.createBufferStrategy(2); //Creación de 2 Buffers (Double Buffer)
@@ -156,10 +154,11 @@ public class Tanks extends JFrame implements Runnable {
 		processInput(delta); //Input de mouse y teclado en loop
 		updateObjects(delta); //La actualización de objectos 
 		renderFrame(); 
-		sleep(10L);
+		sleep(10L); //El loop se pone en pausa cada 10 milisegundos
+		//Aquí se crea el cambio en la direccón del viento cada 5 segundos
 		if(sleepViento>5000)
 		{
-			if(viento>0)
+			if(viento>0) //Si el viento es positivo, convierte el siguiente a negativo
 			{
 				viento = (float)Math.random()* -1;
 			}
@@ -193,7 +192,8 @@ public class Tanks extends JFrame implements Runnable {
 			bs.show();
 		} while (bs.contentsLost());
 	}
-
+	
+	//Método llamado en el loop para hacer las pausas entre loops
 	private void sleep(long sleep) {
 		try {
 			Thread.sleep(sleep);
@@ -201,9 +201,10 @@ public class Tanks extends JFrame implements Runnable {
 		}
 	}
 
+	//Método para recibir input de teclado
 	private void processInput(double delta) {
 		keyboard.poll();
-		mouse.poll();
+		//Los controles del tanque del oeste están aquí
 		if (keyboard.keyDown(KeyEvent.VK_W)) {
 			cannonRot += cannonDelta * delta;
 		}
@@ -211,18 +212,17 @@ public class Tanks extends JFrame implements Runnable {
 			cannonRot -= cannonDelta * delta;
 		}
 		if (keyboard.keyDownOnce(KeyEvent.VK_SPACE)) {
-			// new velocity
+			// La velocidad del proyectil que se translada +- el viento en ese instante
 			Matrices mat = Matrices.translate(10.5f + viento , 0.0f);
 			mat = mat.mul(Matrices.rotate(cannonRot));
 			velocity = mat.mul(new Vectores());
-			// place bullet at cannon end
+			// Aquí se pone el proyectil de los cañones en su lugar.
 			mat = Matrices.translate(.45f, 0.20f);
-			mat = mat.mul(Matrices.rotate(cannonRot));
+			mat = mat.mul(Matrices.rotate(cannonRot)); //Esto hace que aunque rote se mantenga en su lugar
 			mat = mat.mul(Matrices.translate(-1.6f, -1.75f));
 			bullet = mat.mul(new Vectores());
-			
-			//viento = (float)Math.random()* 2;
 		}
+		//Es exactamente lo mismo, pero el proyectil viaja hacia la izquierda
 		if (keyboard.keyDown(KeyEvent.VK_J)) {
 			cannonRot2 += cannonDelta2 * delta;
 		}
@@ -241,20 +241,25 @@ public class Tanks extends JFrame implements Runnable {
 			bullet2 = mat2.mul(new Vectores());
 		}
 	}
-
+	
+	//En este método se mantienen actualizados los objetos dentro del loop
 	private void updateObjects(double delta) {
+		//Inicialización de matrices para poder dibujar los polígonos
 		Matrices matMapa = Matrices.identity();
 		Matrices mat = Matrices.identity();
 		Matrices mat2 = Matrices.identity();
 		Matrices matA = Matrices.identity();
 		Matrices matB = Matrices.identity();
+		//matXYZ qwert.translate(x,y) hace que se transporte a una posición
 		matMapa = matMapa.mul(Matrices.translate(-0.385f, -1.718f));
+		//Cambiando la posición de el punto de rotación de los cañones 
 		mat = mat.mul(Matrices.rotate(cannonRot));
 		mat = mat.mul(Matrices.translate(-1.6f, -1.75f));
 		matA = matA.mul(Matrices.translate(-2.0f, -2.0f));
 		mat2 = mat2.mul(Matrices.rotate(cannonRot2));
 		mat2 = mat2.mul(Matrices.translate(2.1f, -1.75f));
 		matB = matB.mul(Matrices.translate(2.0f, -2.0f));
+		//Los polígonos ya actualizados se mandan 
 		for (int i = 0; i < mapaPiso.length; ++i) {
 			mapaPisoCpy[i] = matMapa.mul(mapaPiso[i]);
 		}
