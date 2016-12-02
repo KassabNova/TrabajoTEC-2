@@ -36,8 +36,9 @@ public class Tanks extends JFrame implements Runnable {
 	private Vectores bulletCpy2;
 	private Vectores velocity;
 	private Vectores velocity2;
-	public float viento;
-
+	public float viento, sleepViento;
+	public int cannonCol, cannonCol2; 
+	
 	public Tanks() {
 		
 	}
@@ -90,13 +91,17 @@ public class Tanks extends JFrame implements Runnable {
 		//Crea los objetos de velocidad de los 2 proyectiles
 		velocity = new Vectores(); 
 		velocity2 = new Vectores();
-		viento = 0.0f; //La fuerza inicial del viento inicializa en 0
+		viento = (float)Math.random(); //La fuerza inicial del viento inicializa en 0
+		sleepViento= 0.0f;
 		//La rotación de los cañones se inicializa en el 'angulo' 0
 		cannonRot = 0.0f;
 		cannonRot2 = 0.0f;
 		//La velocidad de cambio de la rotación de los cañones se inicializa
 		cannonDelta = (float) Math.toRadians(180);
 		cannonDelta2 = (float) Math.toRadians(180);
+		//
+		cannonCol = 0;
+		cannonCol2 = 0;
 		//Usando la clase Vectores se le está asignando coordenadas a 
 		//diferentes puntos y conectando el punto inicial con el 
 		//último punto dibujado. Así creando un polígono cerrado
@@ -152,6 +157,23 @@ public class Tanks extends JFrame implements Runnable {
 		updateObjects(delta); //La actualización de objectos 
 		renderFrame(); 
 		sleep(10L);
+		if(sleepViento>5000)
+		{
+			if(viento>0)
+			{
+				viento = (float)Math.random()* -1;
+			}
+			else
+			{
+				viento = (float)Math.random();
+			}
+			sleepViento = 0.0f;
+		}		
+		else
+		{
+			sleepViento += 9.0;
+		}
+		
 	}
 
 	private void renderFrame() {
@@ -190,15 +212,16 @@ public class Tanks extends JFrame implements Runnable {
 		}
 		if (keyboard.keyDownOnce(KeyEvent.VK_SPACE)) {
 			// new velocity
-			viento = (float)Math.random()* 2;
 			Matrices mat = Matrices.translate(10.5f + viento , 0.0f);
 			mat = mat.mul(Matrices.rotate(cannonRot));
 			velocity = mat.mul(new Vectores());
 			// place bullet at cannon end
-			mat = Matrices.translate(0.45f, 0.20f);
+			mat = Matrices.translate(.45f, 0.20f);
 			mat = mat.mul(Matrices.rotate(cannonRot));
 			mat = mat.mul(Matrices.translate(-1.6f, -1.75f));
 			bullet = mat.mul(new Vectores());
+			
+			//viento = (float)Math.random()* 2;
 		}
 		if (keyboard.keyDown(KeyEvent.VK_J)) {
 			cannonRot2 += cannonDelta2 * delta;
@@ -208,7 +231,7 @@ public class Tanks extends JFrame implements Runnable {
 		}
 		if (keyboard.keyDownOnce(KeyEvent.VK_I)) {
 			// new velocity
-			Matrices mat2 = Matrices.translate(-10.5f, 0.0f);
+			Matrices mat2 = Matrices.translate(-10.5f + viento, 0.0f);
 			mat2 = mat2.mul(Matrices.rotate(cannonRot2));
 			velocity2 = mat2.mul(new Vectores());
 			// place bullet at cannon end
@@ -255,14 +278,25 @@ public class Tanks extends JFrame implements Runnable {
 			if (bullet.y < -2.033f || bullet.x > 14.2f || bullet.x < -4.5f ) {
 				bullet = null;
 			}
+			else if(bullet.y < -1.733f && (bullet.x > 10.5f && bullet.x < 11.0f))
+			{
+				cannonCol++;
+				bullet = null;					
+			}
 		}
 		if (bullet2 != null) {
 			velocity2.y += -9.0f * delta;
 			bullet2.x += velocity2.x * delta;
 			bullet2.y += velocity2.y * delta;
 			bulletCpy2 = new Vectores(bullet2);
-			if (bullet2.y < -2.033f || bullet2.x > 14.2f || bullet2.x < -4.6f) {
+			if (bullet2.y < -2.033f || bullet2.x > 14.2f || bullet2.x < -4.6f) 
+			{
 				bullet2 = null;
+			}
+			else if(bullet2.y < -1.733f && (bullet2.x > -2.0f && bullet2.x < -1.0f))
+			{
+				cannonCol2++;
+				bullet2 = null;					
 			}
 		}
 	}
@@ -272,16 +306,30 @@ public class Tanks extends JFrame implements Runnable {
 		g.setFont(new Font("TimesRoman", Font.PLAIN, 30)); 
 		frameRate.calculate();
 		g.drawString(frameRate.getFrameRate(), 20, 25);
-		g.drawString("(W) / (S) to raise/lower the leftCannon and (U) / (J) to raise/lower the rightCannon", 20, 50);
-		g.drawString("Press Space to fire leftTank and Press I to fire rightTank", 20, 75);
-		String vel = String.format("Velocity (%.2f,%.2f)", velocity.x,
+		g.drawString("Controles: W/S para mover cañon del oeste y U/J para mover cañon del este", 20, 50);
+		g.drawString("Oprime Space para disparar el cañon del oeste y la tecla I para disparar el cañon del este", 20, 75);
+		String vel = String.format("Velocidad del proyectil del oeste  (%.2f,%.2f)", velocity.x,
 				velocity.y);
 		g.drawString(vel, 20, 100);
-		String vel2 = String.format("Velocity2 (%.2f,%.2f)", velocity2.x,
+		String vel2 = String.format("Velocidad del proyectil del este: (%.2f,%.2f)", velocity2.x,
 				velocity2.y);
 		g.drawString(vel2, 20, 130);
-		String vientoString = String.format("Viento (%.2f)", viento);
-		g.drawString(vientoString, 20, 160);
+		String vientoString = String.format("Hay un viento de %.2f khm en el eje X ", viento * 20);
+		g.drawString(vientoString, 20, 220);
+		String collisionString = String.format("Hits tanque del oeste " + cannonCol);
+		g.drawString(collisionString, 20, 190);
+		String collisionString2 = String.format("Hits tanque del este " + cannonCol2);
+		g.drawString(collisionString2, 20, 160);
+		if(cannonCol >= 2)
+		{
+			String gameOver = String.format("GAME OVER: TANQUE DEL OESTE GANA");
+			g.drawString(gameOver, 400, 300);
+		}
+		if(cannonCol2 >= 2)
+		{
+			String gameOver2 = String.format("GAME OVER: TANQUE DEL ESTE GANA");
+			g.drawString(gameOver2, 400, 300);
+		}
 		float worldWidth = 20.0f;
 		float worldHeight = 5.0f;
 		float screenWidth = canvas.getWidth() - 1;
