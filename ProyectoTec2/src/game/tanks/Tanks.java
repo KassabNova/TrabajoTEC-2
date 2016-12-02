@@ -259,7 +259,7 @@ public class Tanks extends JFrame implements Runnable {
 		mat2 = mat2.mul(Matrices.rotate(cannonRot2));
 		mat2 = mat2.mul(Matrices.translate(2.1f, -1.75f));
 		matB = matB.mul(Matrices.translate(2.0f, -2.0f));
-		//Los polígonos ya actualizados se mandan 
+		//Los polígonos ya actualizados se mandan a las copias
 		for (int i = 0; i < mapaPiso.length; ++i) {
 			mapaPisoCpy[i] = matMapa.mul(mapaPiso[i]);
 		}
@@ -325,12 +325,12 @@ public class Tanks extends JFrame implements Runnable {
 		g.drawString(collisionString, 20, 190);
 		String collisionString2 = String.format("Hits tanque del este " + cannonCol2);
 		g.drawString(collisionString2, 20, 160);
-		if(cannonCol >= 2)
+		if(cannonCol >= 9)
 		{
 			String gameOver = String.format("GAME OVER: TANQUE DEL OESTE GANA");
 			g.drawString(gameOver, 400, 300);
 		}
-		if(cannonCol2 >= 2)
+		if(cannonCol2 >= 9)
 		{
 			String gameOver2 = String.format("GAME OVER: TANQUE DEL ESTE GANA");
 			g.drawString(gameOver2, 400, 300);
